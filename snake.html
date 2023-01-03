@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    border:1px solid #d3d3d3; 
+    background-color: #f1f1f1;
+  }
+  </style>
+</head>
+<body>
+<canvas width="720" height="420" id="game"></canvas>
+<script>
+var alive = true;
+var canvas = document.getElementById('game');
+var context = canvas.getContext('2d');
+
+var grid = 20;
+var count = 0;
+
+var courseList = [101,114,160,161,214,215,216,220,300,303,306,307,310,311,312,316,320,327,334,337,351,352,354,371,373,376,380,385,416,506,512,526,527,532,540,541,544,545,548,550,555,564,566,600,645];
+var courseNum = 44;
+
+var snake = {
+  x: 340,
+  y: 180,
+  
+  dx: grid,
+  dy: 0,
+  
+  cells: [],
+  
+  blockNum: 1
+};
+var course = {
+  x: 120,
+  y: 120
+};
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function gameStart() {
+    if(alive){
+    requestAnimationFrame(gameStart);
+    }
+
+    if(!alive){
+        alert("Game Over!");
+    }
+
+    if(courseNum == -1){
+        alert("You Won!");
+    }
+
+  if (++count < 8) {
+    return;
+  }
+
+  count = 0;
+  context.clearRect(0,0,canvas.width,canvas.height);
+
+  snake.x += snake.dx;
+  snake.y += snake.dy;
+
+  snake.cells.unshift({x: snake.x, y: snake.y});
+
+  if (snake.cells.length > snake.blockNum) {
+    snake.cells.pop();
+  }
+
+  context.fillStyle = 'red';
+  context.fillRect(course.x, course.y, grid-1, grid-1);
+  context.fillStyle = 'black';
+  context.fillText(courseList[courseNum], course.x+1, course.y+13);
+
+  context.fillStyle = 'green';
+  snake.cells.forEach(function(cell, index) {
+    
+    context.fillRect(cell.x, cell.y, grid-1, grid-1);  
+
+    if (cell.x === course.x && cell.y === course.y) {
+      snake.blockNum++;
+      courseNum--;
+      course.x = getRandomInt(0, 36) * grid;
+      course.y = getRandomInt(0, 21) * grid;
+    }
+
+    if(snake.x < 0 || snake.x >= canvas.width || snake.y < 0 ||snake.y >= canvas.height){
+        alive = false;
+    }
+
+    for (var i = index + 1; i < snake.cells.length; i++) {
+      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+        alive = false;
+      }
+    }
+  });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.which === 37 && snake.dx === 0) {
+    snake.dx = -grid;
+    snake.dy = 0;
+  }
+
+  else if (e.which === 38 && snake.dy === 0) {
+    snake.dy = -grid;
+    snake.dx = 0;
+  }
+
+  else if (e.which === 39 && snake.dx === 0) {
+    snake.dx = grid;
+    snake.dy = 0;
+  }
+
+  else if (e.which === 40 && snake.dy === 0) {
+    snake.dy = grid;
+    snake.dx = 0;
+  }
+});
+
+requestAnimationFrame(gameStart);
+</script>
+</body>
+</html>
